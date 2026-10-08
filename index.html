@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nutri BakeShop - Transactions</title>
+<style>
+
+*{box-sizing:border-box}
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background-color:#f1f8f4;
+    color:#333;
+}
+[hidden]{display:none!important}
+
+.header{
+    background-color:#198754;
+    color:white;
+    padding:18px 30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+.header h1{margin:0;font-size:24px}
+.header-buttons{display:flex;gap:10px}
+.pos-button,.logout-button{
+    border:none;
+    padding:10px 18px;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:bold;
+}
+.pos-button{background:white;color:#198754}
+.logout-button{background:#dc3545;color:white}
+.pos-button:hover{background:#f3f3f3}
+.logout-button:hover{background:#bb2d3b}
+
+.layout{
+    display:flex;
+    gap:20px;
+    padding:25px;
+    align-items:flex-start;
+}
+.sidebar{
+    width:210px;
+    flex-shrink:0;
+    background:#fff;
+    padding:18px 14px;
+    border-radius:12px;
+    box-shadow:0 4px 6px -1px rgba(0,0,0,.05);
+    position:sticky;
+    top:20px;
+}
+.sidebar-title{
+    font-size:13px;
+    font-weight:bold;
+    color:#6c757d;
+    text-transform:uppercase;
+    margin:4px 10px 12px;
+}
+.module-link{
+    display:block;
+    width:100%;
+    padding:11px 12px;
+    margin-bottom:6px;
+    border:0;
+    border-radius:8px;
+    color:#495057;
+    background:transparent;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    text-decoration:none;
+}
+.module-link:hover,.module-link.active{
+    background:#dff3e8;
+    color:#198754;
+}
+.module-icon{
+    display:inline-block;
+    width:25px;
+    text-align:center;
+}
+.main-content{flex:1;min-width:0}
+.main-container{display:flex;gap:20px;align-items:flex-start}
+.left-content{width:100%;min-width:0}
+
+.box,.card{
+    background:#fff;
+    padding:22px;
+    margin-bottom:20px;
+    border-radius:10px;
+    box-shadow:0 3px 10px rgba(0,0,0,.10);
+    border:0;
+}
+.box h2,.box h3,.card h2,.card h3{
+    color:#198754;
+    margin-top:0;
+}
+.page-header{margin-bottom:20px}
+.page-header h1{margin:0 0 6px;font-size:24px;color:#198754}
+.page-header p{margin:0;color:#6c757d;font-size:14px}
+
+.summary{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+    margin-bottom:20px;
+}
+.summary-card{
+    background:#fff;
+    padding:18px;
+    border-radius:10px;
+    box-shadow:0 3px 10px rgba(0,0,0,.10);
+    border:0;
+}
+.summary-card span{
+    display:block;
+    font-size:13px;
+    color:#6c757d;
+    margin-bottom:7px;
+}
+.summary-card strong{font-size:23px;color:#198754}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+.form-group{display:flex;flex-direction:column}
+.form-group label,label{font-weight:bold;margin-bottom:6px;font-size:14px}
+.form-group input,.form-group select,
+input,select,textarea{
+    padding:11px;
+    border:1px solid #ccc;
+    border-radius:6px;
+    font-size:14px;
+    outline:none;
+    background:#fff;
+}
+.form-group input:focus,.form-group select:focus,
+input:focus,select:focus,textarea:focus{border-color:#198754}
+.hint{font-size:11px;color:#6c757d;margin-top:5px}
+.button-area{margin-top:20px}
+.btn{
+    border:none;
+    padding:11px 18px;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:bold;
+    font-size:14px;
+}
+.btn-primary{background:#198754;color:#fff}
+.btn-primary:hover{background:#157347}
+.btn-secondary{background:#f1f3f5;color:#495057;margin-left:8px}
+.btn-complete{background:#198754;color:#fff;padding:7px 11px;font-size:12px}
+.btn-void,.btn-danger{background:#dc3545;color:#fff}
+.btn-void{padding:7px 11px;font-size:12px;margin-left:5px}
+
+.message{
+    display:none;
+    padding:12px 15px;
+    border-radius:6px;
+    margin:0 0 20px;
+    font-size:14px;
+}
+.message.success{display:block;background:#dff3e8;color:#146c43}
+.message.error{display:block;background:#f8d7da;color:#842029}
+
+.tabs{
+    display:flex;
+    gap:10px;
+    margin-bottom:15px;
+    flex-wrap:wrap;
+}
+.tab{
+    padding:11px 16px;
+    border:1px solid #198754;
+    background:#fff;
+    color:#198754;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:bold;
+    font-size:13px;
+}
+.tab:hover{background:#eef9f3}
+.tab.active{background:#198754;color:#fff}
+.tabs.level1 .tab{flex:1;padding:12px;font-size:14px}
+.channel-title{font-size:20px;margin:0 0 5px;color:#198754}
+.channel-description{font-size:13px;color:#6c757d;margin:0 0 20px}
+.sub{border-left:3px solid #dff3e8;padding-left:15px;margin-top:5px}
+
+.table-container{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:1000px}
+th{
+    background:#f8f9fa;
+    text-align:left;
+    padding:12px;
+    font-size:13px;
+    color:#6c757d;
+    border-bottom:1px solid #dee2e6;
+}
+td{
+    padding:13px 12px;
+    border-bottom:1px solid #eee;
+    font-size:13px;
+}
+.empty-message{text-align:center;padding:30px;color:#9aa0a6}
+.status{
+    display:inline-block;
+    padding:5px 9px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:bold;
+}
+.status.pending{background:#fff3cd;color:#664d03}
+.status.completed{background:#dff3e8;color:#146c43}
+.status.void{background:#f8d7da;color:#842029}
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.45);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:1000;
+}
+.modal-box{
+    width:430px;
+    max-width:90%;
+    background:#fff;
+    border-radius:10px;
+    padding:22px;
+    box-shadow:0 5px 20px rgba(0,0,0,.2);
+}
+.modal-box h2{margin:0 0 8px;color:#198754}
+.modal-box p{font-size:13px;color:#6c757d;margin-bottom:20px}
+.modal-actions{margin-top:20px;display:flex;justify-content:flex-end;gap:8px}
+
+@media(max-width:1100px){
+    .summary{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:900px){
+    .layout{flex-direction:column}
+    .sidebar{width:100%;position:static}
+    .module-link{display:inline-block;width:auto;margin-right:4px}
+}
+@media(max-width:700px){
+    .header{padding:15px 18px;align-items:flex-start;gap:12px}
+    .header h1{font-size:20px}
+    .header-buttons{flex-shrink:0}
+    .layout{padding:15px}
+    .summary,.form-grid{grid-template-columns:1fr}
+    .main-container{display:block}
+    .left-content{width:100%}
+}
+
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Nutri BakeShop - Transactions</h1>
+    <div class="header-buttons">
+        <button class="pos-button" onclick="goToPOS()">Back to POS</button>
+        <button class="logout-button" onclick="logout()">Logout</button>
+    </div>
+</div>
+
+<div class="layout">
+    <aside class="sidebar">
+        <div class="sidebar-title">Modules</div>
+        <a class="module-link" href="dashboard.html"><span class="module-icon"></span>Dashboard</a>
+        <a class="module-link" href="pos.html"><span class="module-icon"></span>POS</a>
+        <a class="module-link" href="reservation.html"><span class="module-icon"></span>Reservation</a>
+
+        <a class="module-link" href="inventory.html"><span class="module-icon"></span>Inventory</a>
+        <a class="module-link" href="salesReports.html"><span class="module-icon"></span>Reports</a>
+        <a class="module-link active" href="transaction.html"><span class="module-icon"></span>Transaction</a>
+    </aside>
+
+    <main class="main-content">
+        <div class="main-container">
+            <div class="left-content">
+                
+    <div class="page-header">
+        <h1>Transactions</h1>
+        <p>Record, process, complete, and manage customer transactions.</p>
+    </div>
+
+    <section class="summary">
+        <div class="summary-card"><span>Total Transactions</span><strong id="transaction-count">0</strong></div>
+        <div class="summary-card"><span>Pending</span><strong id="pending-count">0</strong></div>
+        <div class="summary-card"><span>Completed Sales</span><strong id="total-sales">₱0.00</strong></div>
+        <div class="summary-card"><span>Voided Transactions</span><strong id="void-count">0</strong></div>
+    </section>
+
+    <!-- Status messages (used by the core module, stays after the form is removed) -->
+    <div id="message" class="message"></div>
+
+    <!-- ===== DEMO FORM - START (temporary placeholder: delete this whole section later) ===== -->
+    <section class="card" id="demo-form">
+        <h2>New Transaction</h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="transaction-type">Transaction Type</label>
+                <select id="transaction-type">
+                    <option value="onsite">Onsite</option>
+                    <option value="online">Online</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="order-id">Order ID (automatic)</label>
+                <input type="text" id="order-id" readonly placeholder="Generated automatically">
+                <span class="hint"></span>
+            </div>
+            <div class="form-group">
+                <label for="customer-name">Customer Name</label>
+                <input type="text" id="customer-name" placeholder="Customer name">
+            </div>
+            <div class="form-group">
+                <label for="product-name">Product</label>
+                <select id="product-name">
+                    <option value="">Select Product</option>
+                    <optgroup label="Pastries">
+                        <option value="Crinkles" data-price="20.00">Crinkles</option>
+                        <option value="Carrot Bars" data-price="250.00">Carrot Bars</option>
+                        <option value="Brownies" data-price="250.00">Brownies</option>
+                        <option value="Crema de Fruta" data-price="900.00">Crema de Fruta</option>
+                        <option value="Toasted Mamon" data-price="75.00">Toasted Mamon</option>
+                    </optgroup>
+                    <optgroup label="Cakes">
+                        <option value="Taisan Classic Cake" data-price="170.00">Taisan Classic Cake</option>
+                        <option value="Taisan Ube Cake" data-price="190.00">Taisan Ube Cake</option>
+                        <option value="Taisan Mocha Cake" data-price="190.00">Taisan Mocha Cake</option>
+                    </optgroup>
+                    <optgroup label="Custom Cakes">
+                        <option value="custom-cake" data-price="0">Custom Cake</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div class="form-group full" id="transaction-cake-fields" hidden>
+                <label for="transaction-cake-size">Custom Cake Details</label>
+                <div class="form-grid">
+                    <select id="transaction-cake-size">
+                        <option value="6 inches" data-price="650">6 inches - ₱650</option>
+                        <option value="8 inches" data-price="950">8 inches - ₱950</option>
+                        <option value="10 inches" data-price="1350">10 inches - ₱1,350</option>
+                        <option value="12 inches" data-price="1800">12 inches - ₱1,800</option>
+                    </select>
+                    <select id="transaction-cake-flavor">
+                        <option value="Chocolate" data-price="100">Chocolate +₱100</option>
+                        <option value="Vanilla" data-price="0">Vanilla +₱0</option>
+                        <option value="Red Velvet" data-price="150">Red Velvet +₱150</option>
+                        <option value="Strawberry" data-price="120">Strawberry +₱120</option>
+                        <option value="Ube" data-price="100">Ube +₱100</option>
+                        <option value="White Chiffon" data-price="80">White Chiffon +₱80</option>
+                        <option value="Other Flavor" data-price="0">Other Flavor - Custom Price</option>
+                    </select>
+                    <input type="text" id="transaction-other-flavor" placeholder="Requested flavor" hidden>
+                    <input type="number" id="transaction-other-flavor-price" min="0" step="0.01" placeholder="Flavor surcharge" hidden>
+                    <select id="transaction-design-level">
+                        <option value="Simple Design" data-price="0">Simple Design +₱0</option>
+                        <option value="Standard Design" data-price="350">Standard Design +₱350</option>
+                        <option value="Premium Design" data-price="800">Premium Design +₱800</option>
+                        <option value="Fully Customized" data-price="0">Fully Customized - Staff Quote</option>
+                    </select>
+                    <input type="number" id="transaction-custom-design-price" min="0" step="0.01" placeholder="Custom design surcharge" hidden>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="quantity">Quantity</label>
+                <input type="number" id="quantity" min="1" step="1" inputmode="numeric" placeholder="Quantity">
+            </div>
+            <div class="form-group">
+                <label for="price">Unit Price</label>
+                <input type="number" id="price" readonly placeholder="Automatically generated">
+            </div>
+            <div class="form-group full">
+                <button type="button" class="btn btn-secondary" onclick="addProductToTransaction()">Add Product to Transaction</button>
+                <div id="selected-transaction-items" class="hint">No products selected.</div>
+            </div>
+            <div class="form-group">
+                <label for="payment">Payment Amount</label>
+                <input type="number" id="payment" min="0" step="0.01" inputmode="decimal" placeholder="0.00">
+            </div>
+            <div class="form-group">
+                <label for="payment-method">Payment Method</label>
+                <select id="payment-method">
+                    <option value="cash">Cash</option>
+                    <option value="e-wallet">E-Wallet</option>
+                </select>
+                <span class="hint"></span>
+            </div>
+            <div class="form-group">
+                <label for="reservation-date">Reservation Date</label>
+                <input type="date" id="reservation-date">
+                <span class="hint">Leave blank for a regular transaction.</span>
+            </div>
+            <div class="form-group">
+                <label for="date-needed">Date Needed</label>
+                <input type="date" id="date-needed">
+            </div>
+            <div class="form-group">
+                <label for="time-needed">Time Needed</label>
+                <input type="time" id="time-needed">
+            </div>
+        </div>
+
+        <div class="button-area">
+            <button class="btn btn-primary" onclick="recordTransaction()">Record Transaction</button>
+            <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+        </div>
+    </section>
+    <!-- ===== DEMO FORM - END ===== -->
+
+    <section class="card">
+        <h2>Transaction Channels</h2>
+        <!-- Channels, sub-modules and status panels are built by buildChannels() -->
+        <div id="channels"></div>
+    </section>
+
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="void-modal" class="modal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="void-modal-title">
+        <h2 id="void-modal-title">Owner Authorization Required</h2>
+        <p>Enter the owner's username and password to void this transaction.</p>
+        <div id="owner-auth-error" class="message error" role="alert" hidden>Invalid username or password. Transaction cannot be voided.</div>
+        <form onsubmit="authorizeVoid(); return false;">
+            <div class="form-group">
+                <label for="owner-username">Owner Username</label>
+                <input type="text" id="owner-username" autocomplete="username" required>
+            </div>
+            <div class="form-group" style="margin-top:15px">
+                <label for="owner-password">Owner Password</label>
+                <input type="password" id="owner-password" autocomplete="current-password" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeVoidModal()">Cancel</button>
+                <button type="submit" class="btn btn-danger">Authorize Void</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="void-confirm-modal" class="modal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="void-confirm-title">
+        <h2 id="void-confirm-title">Confirm Void</h2>
+        <p id="void-confirm-message">Are you sure you want to void this transaction?</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeVoidConfirmModal()">Cancel</button>
+            <button type="button" class="btn btn-danger" onclick="confirmVoid()">Void Transaction</button>
+        </div>
+    </div>
+</div>
+
+<div id="complete-confirm-modal" class="modal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="complete-confirm-title">
+        <h2 id="complete-confirm-title">Confirm Completion</h2>
+        <p id="complete-confirm-message">Confirm that this transaction has been completed?</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeCompleteConfirmModal()">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="confirmComplete()">Complete Transaction</button>
+        </div>
+    </div>
+</div>
+
+<script>
+/* =====================================================
+   DATA STRUCTURE: ARRAY ONLY
+   - "transactions" is ONE array; every record is also an array.
+   - No classes / OOP, no objects, no built-in array methods
+     (no push, forEach, find, some, map, filter, includes, join...).
+   - Only for/while loops, indexes, and the .length property.
+   - Records are never deleted (void = status change), so the
+     next ID is always transactions.length + 1 (never duplicated).
+===================================================== */
+
+const transactions = [];
+const orderItems = [];
+const I_NAME = 0, I_PRICE = 1, I_QUANTITY = 2;
+
+/* Field positions inside one record (array) */
+const F_TRX = 0, F_ORDER = 1, F_RES = 2, F_TYPE = 3, F_CUST = 4, F_PROD = 5,
+      F_QTY = 6, F_PRICE = 7, F_TOTAL = 8, F_PAY = 9, F_CHANGE = 10,
+    F_DATE = 11, F_TIME = 12, F_STATUS = 13, F_METHOD = 14, F_NEED = 15, F_NEED_TIME = 16;
+
+/* Configuration arrays */
+const CHANNEL_IDS = ["onsite", "online"];
+const CHANNEL_LABELS = ["Onsite", "Online"];
+const CHANNEL_DESC = [
+    "Walk-in transactions processed directly at the bakery.",
+    "Orders received through the bakery's online ordering channel."
+];
+const KIND_IDS = ["regular", "reservation"];
+const KIND_LABELS = ["Transactions", "Reservations"];
+const STATUS_IDS = ["pending", "completed", "void"];
+const STATUS_LABELS = ["Pending", "Completed", "Void / Cancelled"];
+
+/* DEMONSTRATION ONLY - a real system must store authentication securely */
+const ownerUsername = "owner";
+const ownerPassword = "admin123";
+let selectedVoidTransactionId = "";
+let selectedCompleteTransactionId = "";
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+/* =====================================================
+   HELPERS
+===================================================== */
+
+function pad(number, length) {
+    let text = "" + number;
+    while (text.length < length) {
+        text = "0" + text;
+    }
+    return text;
+}
+
+function formatCurrency(amount) {
+    return "₱" + amount.toFixed(2);
+}
+
+function todayString() {
+    const now = Date();
+    const monthName = now.substring(4, 7);
+    let month = 1;
+    if (monthName === "Feb") month = 2;
+    else if (monthName === "Mar") month = 3;
+    else if (monthName === "Apr") month = 4;
+    else if (monthName === "May") month = 5;
+    else if (monthName === "Jun") month = 6;
+    else if (monthName === "Jul") month = 7;
+    else if (monthName === "Aug") month = 8;
+    else if (monthName === "Sep") month = 9;
+    else if (monthName === "Oct") month = 10;
+    else if (monthName === "Nov") month = 11;
+    else if (monthName === "Dec") month = 12;
+    return now.substring(11, 15) + "-" + pad(month, 2) + "-" + now.substring(8, 10);
+}
+
+function getCurrentDateTime() {
+    const now = Date();
+    return todayString() + " " + now.substring(16, 21);
+}
+
+function escapeHtml(text) {
+    let out = "";
+    for (let i = 0; i < text.length; i++) {
+        const c = text.charAt(i);
+        if (c === "&") out += "&amp;";
+        else if (c === "<") out += "&lt;";
+        else if (c === ">") out += "&gt;";
+        else if (c === '"') out += "&quot;";
+        else if (c === "'") out += "&#39;";
+        else out += c;
+    }
+    return out;
+}
+
+function showMessage(message, type) {
+    $("message").textContent = message;
+    $("message").className = "message " + type;
+}
+
+function statusHTML(status) {
+    const label = status.charAt(0).toUpperCase() + status.substring(1);
+    return '<span class="status ' + status + '">' + label + "</span>";
+}
+
+function hasStatus(channel, status) {
+    /* Online orders cannot be voided by staff - only the customer can cancel them */
+    if (channel === "online" && status === "void") {
+        return false;
+    }
+    return true;
+}
+
+function methodLabel(method) {
+    if (method === "e-wallet") {
+        return "E-Wallet";
+    }
+    return "Cash";
+}
+
+function kindOf(record) {
+    if (record[F_DATE] !== "") {
+        return "reservation";
+    }
+    return "regular";
+}
+
+/* =====================================================
+   MODULE 2: DUPLICATE CHECKER (LINEAR SEARCH)
+===================================================== */
+
+function orderIdExists(orderId) {
+    const target = orderId.toLowerCase();
+    for (let i = 0; i < transactions.length; i++) {
+        if (transactions[i][F_ORDER].toLowerCase() === target) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/* =====================================================
+   AUTOMATIC ORDER ID (based on category)
+   ONS-001 / ONL-001 = regular Onsite / Online
+   ONS-RSV-001 / ONL-RSV-001 = Onsite / Online reservation
+===================================================== */
+
+function generateOrderId(type, reservationDate) {
+    let prefix = "ONS";
+    if (type === "online") {
+        prefix = "ONL";
+    }
+    let kind = "regular";
+    if (reservationDate !== "") {
+        prefix = prefix + "-RSV";
+        kind = "reservation";
+    }
+
+    let count = 0;
+    for (let i = 0; i < transactions.length; i++) {
+        if (transactions[i][F_TYPE] === type && kindOf(transactions[i]) === kind) {
+            count = count + 1;
+        }
+    }
+    return prefix + "-" + pad(count + 1, 3);
+}
+
+/* =====================================================
+   MODULE 3: RECEIVE TRANSACTION (ARRAY INSERTION)
+   Single entry point for every incoming transaction: the demo
+   form now, the connected ordering modules later.
+   Returns an array: [true, orderId] or [false, "error message"].
+===================================================== */
+
+function createRecord(trxId, orderId, resId, type, cust, prod, qty, price, total, pay, change, date, time, status, method, dateNeeded, timeNeeded) {
+    return [trxId, orderId, resId, type, cust, prod, qty, price, total, pay, change, date, time, status, method, dateNeeded, timeNeeded];
+}
+
+function receiveTransaction(type, customer, product, quantity, price, payment, method, pickupDate, dateNeeded, timeNeeded) {
+    const total = quantity * price;
+    if (payment < total) {
+        return [false, "Payment is insufficient. Total is " + formatCurrency(total) + "."];
+    }
+
+    /* Online orders are always paid by e-wallet */
+    if (type === "online") {
+        method = "e-wallet";
+    }
+
+    const orderId = generateOrderId(type, pickupDate);
+    if (orderIdExists(orderId)) {
+        return [false, 'Order ID "' + orderId + '" already exists. Duplicate IDs are not allowed.'];
+    }
+
+    const number = pad(transactions.length + 1, 3);
+    let reservationId = "";
+    if (pickupDate !== "") {
+        reservationId = "RES-" + number;
+    }
+
+    /* Insert at the end of the array */
+    transactions[transactions.length] = createRecord(
+        "TRX-" + number, orderId, reservationId, type, customer, product,
+        quantity, price, total, payment, payment - total,
+        pickupDate, getCurrentDateTime(), "pending", method, dateNeeded, timeNeeded
+    );
+
+    displayAllTransactions();
+    updateSummary();
+    return [true, orderId];
+}
+
+/* =====================================================
+   VIEW BUILDING (hidden attribute shows/hides submodules)
+===================================================== */
+
+function headerHTML(kind, status) {
+    let h = "<th>Transaction ID</th><th>Order ID</th>";
+    if (kind === "reservation") h += "<th>Reservation ID</th><th>Reservation Date</th><th>Date Needed</th><th>Time Needed</th>";
+    h += "<th>Customer</th><th>Product</th><th>Qty</th><th>Total</th><th>Payment</th><th>Method</th><th>Date</th><th>Status</th>";
+    if (status === "pending") h += "<th>Action</th>";
+    return h;
+}
+
+function columnCount(kind, status) {
+    let n = 10;
+    if (kind === "reservation") n = n + 4;
+    if (status === "pending") n = n + 1;
+    return n;
+}
+
+function buildChannels() {
+    let html = '<div class="tabs level1">';
+    for (let c = 0; c < CHANNEL_IDS.length; c++) {
+        html += '<button class="tab' + (c === 0 ? " active" : "") + '" id="ch-btn-' + CHANNEL_IDS[c] +
+                '" onclick="showChannel(\'' + CHANNEL_IDS[c] + '\')">' + CHANNEL_LABELS[c] + "</button>";
+    }
+    html += "</div>";
+
+    for (let c = 0; c < CHANNEL_IDS.length; c++) {
+        const ch = CHANNEL_IDS[c];
+        html += '<div id="channel-' + ch + '"' + (c === 0 ? "" : " hidden") + ">";
+        html += '<h3 class="channel-title">' + CHANNEL_LABELS[c] + " Transactions</h3>";
+        html += '<p class="channel-description">' + CHANNEL_DESC[c] + "</p>";
+
+        html += '<div class="tabs">';
+        for (let k = 0; k < KIND_IDS.length; k++) {
+            html += '<button class="tab' + (k === 0 ? " active" : "") + '" id="kind-btn-' + ch + "-" + KIND_IDS[k] +
+                    '" onclick="showKind(\'' + ch + "','" + KIND_IDS[k] + '\')">' + KIND_LABELS[k] + "</button>";
+        }
+        html += "</div>";
+
+        for (let k = 0; k < KIND_IDS.length; k++) {
+            const kd = KIND_IDS[k];
+            html += '<div class="sub" id="' + ch + "-" + kd + '"' + (k === 0 ? "" : " hidden") + ">";
+
+            html += '<div class="tabs">';
+            for (let s = 0; s < STATUS_IDS.length; s++) {
+                if (hasStatus(ch, STATUS_IDS[s]) === false) {
+                    continue;
+                }
+                html += '<button class="tab' + (s === 0 ? " active" : "") + '" id="st-btn-' + ch + "-" + kd + "-" + STATUS_IDS[s] +
+                        '" onclick="showStatus(\'' + ch + "','" + kd + "','" + STATUS_IDS[s] + '\')">' + STATUS_LABELS[s] + "</button>";
+            }
+            html += "</div>";
+
+            for (let s = 0; s < STATUS_IDS.length; s++) {
+                if (hasStatus(ch, STATUS_IDS[s]) === false) {
+                    continue;
+                }
+                const panel = ch + "-" + kd + "-" + STATUS_IDS[s];
+                html += '<div id="' + panel + '"' + (s === 0 ? "" : " hidden") + '><div class="table-container"><table><thead><tr>' +
+                        headerHTML(kd, STATUS_IDS[s]) + '</tr></thead><tbody id="' + panel + '-body"></tbody></table></div></div>';
+            }
+            html += "</div>";
+        }
+        html += "</div>";
+    }
+    $("channels").innerHTML = html;
+}
+
+function showChannel(channel) {
+    for (let i = 0; i < CHANNEL_IDS.length; i++) {
+        const id = CHANNEL_IDS[i];
+        $("channel-" + id).hidden = (id !== channel);
+        $("ch-btn-" + id).classList.toggle("active", id === channel);
+    }
+}
+
+function showKind(channel, kind) {
+    for (let i = 0; i < KIND_IDS.length; i++) {
+        const id = KIND_IDS[i];
+        $(channel + "-" + id).hidden = (id !== kind);
+        $("kind-btn-" + channel + "-" + id).classList.toggle("active", id === kind);
+    }
+}
+
+function showStatus(channel, kind, status) {
+    for (let i = 0; i < STATUS_IDS.length; i++) {
+        const id = STATUS_IDS[i];
+        if (hasStatus(channel, id) === false) {
+            continue;
+        }
+        $(channel + "-" + kind + "-" + id).hidden = (id !== status);
+        $("st-btn-" + channel + "-" + kind + "-" + id).classList.toggle("active", id === status);
+    }
+}
+
+/* =====================================================
+   MODULE 4: CLASSIFICATION AND DISPLAY (ARRAY TRAVERSAL)
+===================================================== */
+
+function renderTable(channel, kind, status) {
+    const body = $(channel + "-" + kind + "-" + status + "-body");
+    let rows = "";
+
+    for (let i = 0; i < transactions.length; i++) {
+        const r = transactions[i];
+
+        if (r[F_TYPE] !== channel || kindOf(r) !== kind || r[F_STATUS] !== status) {
+            continue;
+        }
+
+        rows += "<tr><td>" + r[F_TRX] + "</td><td>" + escapeHtml(r[F_ORDER]) + "</td>";
+        if (kind === "reservation") {
+            rows += "<td>" + r[F_RES] + "</td><td>" + r[F_DATE] + "</td><td>" + (r[F_NEED] || "") + "</td><td>" + (r[F_NEED_TIME] || "") + "</td>";
+        }
+        rows += "<td>" + escapeHtml(r[F_CUST]) + "</td><td>" + escapeHtml(r[F_PROD]) + "</td><td>" + r[F_QTY] +
+                "</td><td>" + formatCurrency(r[F_TOTAL]) + "</td><td>" + formatCurrency(r[F_PAY]) +
+                "</td><td>" + methodLabel(r[F_METHOD]) + "</td><td>" + r[F_TIME] + "</td><td>" + statusHTML(r[F_STATUS]) + "</td>";
+        if (status === "pending") {
+            rows += '<td><button class="btn btn-complete" onclick="completeTransaction(\'' + r[F_TRX] + '\')">Complete</button>';
+            if (hasStatus(channel, "void")) {
+                rows += '<button class="btn btn-void" onclick="openVoidModal(\'' + r[F_TRX] + '\')">Void</button>';
+            }
+            rows += "</td>";
+        }
+        rows += "</tr>";
+    }
+
+    if (rows === "") {
+        rows = '<tr><td colspan="' + columnCount(kind, status) + '" class="empty-message">No ' + status + " transactions found.</td></tr>";
+    }
+    body.innerHTML = rows;
+}
+
+function displayAllTransactions() {
+    for (let c = 0; c < CHANNEL_IDS.length; c++) {
+        for (let k = 0; k < KIND_IDS.length; k++) {
+            for (let s = 0; s < STATUS_IDS.length; s++) {
+                if (hasStatus(CHANNEL_IDS[c], STATUS_IDS[s])) {
+                    renderTable(CHANNEL_IDS[c], KIND_IDS[k], STATUS_IDS[s]);
+                }
+            }
+        }
+    }
+}
+
+/* =====================================================
+   MODULE 5: STATUS UPDATE - COMPLETE / VOID (LINEAR SEARCH)
+===================================================== */
+
+function findIndexById(transactionId) {
+    for (let i = 0; i < transactions.length; i++) {
+        if (transactions[i][F_TRX] === transactionId) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+function completeTransaction(transactionId) {
+    const index = findIndexById(transactionId);
+    if (index === -1 || transactions[index][F_STATUS] !== "pending") {
+        return;
+    }
+    selectedCompleteTransactionId = transactionId;
+    $("complete-confirm-message").textContent = "Confirm that transaction " + transactionId + " has been completed?";
+    $("complete-confirm-modal").hidden = false;
+}
+
+function closeCompleteConfirmModal() {
+    selectedCompleteTransactionId = "";
+    $("complete-confirm-modal").hidden = true;
+}
+
+function confirmComplete() {
+    const transactionId = selectedCompleteTransactionId;
+    const index = findIndexById(transactionId);
+    if (index === -1 || transactions[index][F_STATUS] !== "pending") {
+        closeCompleteConfirmModal();
+        return;
+    }
+    transactions[index][F_STATUS] = "completed";
+    displayAllTransactions();
+    updateSummary();
+    closeCompleteConfirmModal();
+    showMessage("Transaction " + transactionId + " has been completed.", "success");
+}
+
+function openVoidModal(transactionId) {
+    const index = findIndexById(transactionId);
+    if (index === -1 || hasStatus(transactions[index][F_TYPE], "void") === false) {
+        alert("Online orders can only be cancelled by the customer.");
+        return;
+    }
+    selectedVoidTransactionId = transactionId;
+    $("owner-username").value = "";
+    $("owner-password").value = "";
+    $("owner-auth-error").hidden = true;
+    $("void-modal").hidden = false;
+}
+
+function closeVoidModal() {
+    selectedVoidTransactionId = "";
+    $("owner-auth-error").hidden = true;
+    $("void-modal").hidden = true;
+}
+
+function closeVoidConfirmModal() {
+    selectedVoidTransactionId = "";
+    $("void-confirm-modal").hidden = true;
+}
+
+function authorizeVoid() {
+    const username = $("owner-username").value.trim();
+    const password = $("owner-password").value;
+
+    if (username !== ownerUsername || password !== ownerPassword) {
+        $("owner-auth-error").hidden = false;
+        return;
+    }
+
+    const id = selectedVoidTransactionId;
+    $("void-modal").hidden = true;
+    $("void-confirm-message").textContent = "Owner authorization verified. Are you sure you want to void transaction " + id + "?";
+    $("void-confirm-modal").hidden = false;
+}
+
+function confirmVoid() {
+    const id = selectedVoidTransactionId;
+    const index = findIndexById(id);
+    if (index !== -1 && transactions[index][F_STATUS] === "pending" && hasStatus(transactions[index][F_TYPE], "void")) {
+        transactions[index][F_STATUS] = "void";
+    }
+
+    displayAllTransactions();
+    updateSummary();
+    closeVoidConfirmModal();
+    showMessage("Transaction " + id + " has been voided with owner authorization.", "success");
+}
+
+/* =====================================================
+   MODULE 6: SUMMARY (SINGLE ARRAY TRAVERSAL)
+===================================================== */
+
+function updateSummary() {
+    let pending = 0;
+    let voided = 0;
+    let sales = 0;
+
+    for (let i = 0; i < transactions.length; i++) {
+        const status = transactions[i][F_STATUS];
+        if (status === "pending") {
+            pending = pending + 1;
+        } else if (status === "void") {
+            voided = voided + 1;
+        } else if (status === "completed") {
+            sales = sales + transactions[i][F_TOTAL];
+        }
+    }
+
+    $("transaction-count").textContent = transactions.length;
+    $("pending-count").textContent = pending;
+    $("total-sales").textContent = formatCurrency(sales);
+    $("void-count").textContent = voided;
+}
+
+/* #####################################################
+   DEMO FORM - START
+   Temporary placeholder used only for the defense demo.
+   When the modules are connected, delete everything from
+   here to "DEMO FORM - END" and the <section id="demo-form">
+   in the HTML. Nothing else needs to change.
+##################################################### */
+
+/* =====================================================
+   MODULE 1: INPUT VALIDATION (demo form only)
+===================================================== */
+
+function isBlockedKey(key, allowDot) {
+    if (key === "e" || key === "E" || key === "+" || key === "-" || key === ",") {
+        return true;
+    }
+    if (key === "." && allowDot === false) {
+        return true;
+    }
+    return false;
+}
+
+function keepDigits(text) {
+    let out = "";
+    for (let i = 0; i < text.length; i++) {
+        const c = text.charAt(i);
+        if (c >= "0" && c <= "9") {
+            out += c;
+        }
+    }
+    return out;
+}
+
+function keepMoney(text) {
+    let out = "";
+    let hasDot = false;
+    let decimals = 0;
+    for (let i = 0; i < text.length; i++) {
+        const c = text.charAt(i);
+        if (c >= "0" && c <= "9") {
+            if (hasDot === false) {
+                out += c;
+            } else if (decimals < 2) {
+                out += c;
+                decimals = decimals + 1;
+            }
+        } else if (c === "." && hasDot === false) {
+            hasDot = true;
+            out += c;
+        }
+    }
+    return out;
+}
+
+function isWholeNumber(text) {
+    return text !== "" && keepDigits(text) === text && Number(text) >= 1;
+}
+
+function isMoney(text) {
+    if (text === "" || keepMoney(text) !== text) {
+        return false;
+    }
+    if (text.charAt(text.length - 1) === ".") {
+        return false;
+    }
+    return Number(text) > 0;
+}
+
+function updateOrderId() {
+    $("order-id").value = generateOrderId($("transaction-type").value, $("reservation-date").value);
+}
+
+function updatePaymentMethod() {
+    const select = $("payment-method");
+    if ($("transaction-type").value === "online") {
+        select.value = "e-wallet";
+        select.disabled = true;
+    } else {
+        select.disabled = false;
+        select.value = "cash";
+    }
+}
+
+function showTransactionCakeFields() {
+    const isCustomCake = $("product-name").value === "custom-cake";
+    $("transaction-cake-fields").hidden = isCustomCake === false;
+    if (isCustomCake === false) {
+        $("transaction-other-flavor").hidden = true;
+        $("transaction-other-flavor-price").hidden = true;
+        $("transaction-custom-design-price").hidden = true;
+    }
+    updateTransactionCakePrice();
+}
+
+function updateTransactionCakeFields() {
+    const flavor = $("transaction-cake-flavor").value;
+    const design = $("transaction-design-level").value;
+    $("transaction-other-flavor").hidden = flavor !== "Other Flavor";
+    $("transaction-other-flavor-price").hidden = flavor !== "Other Flavor";
+    $("transaction-custom-design-price").hidden = design !== "Fully Customized";
+    updateTransactionCakePrice();
+}
+
+function updateTransactionCakePrice() {
+    if ($("product-name").value !== "custom-cake") {
+        const option = $("product-name").options[$("product-name").selectedIndex];
+        $("price").value = option.getAttribute("data-price") || "";
+        return;
+    }
+
+    const size = $("transaction-cake-size");
+    const flavor = $("transaction-cake-flavor");
+    const design = $("transaction-design-level");
+    let flavorPrice = Number(flavor.options[flavor.selectedIndex].getAttribute("data-price"));
+    let designPrice = Number(design.options[design.selectedIndex].getAttribute("data-price"));
+
+    if (flavor.value === "Other Flavor") {
+        flavorPrice = Number($("transaction-other-flavor-price").value);
+    }
+    if (design.value === "Fully Customized") {
+        designPrice = Number($("transaction-custom-design-price").value);
+    }
+
+    if (isNaN(flavorPrice) || isNaN(designPrice)) {
+        $("price").value = "";
+        return;
+    }
+    $("price").value = Number(size.options[size.selectedIndex].getAttribute("data-price")) + flavorPrice + designPrice;
+}
+
+function transactionCakeProductLabel() {
+    if ($("product-name").value !== "custom-cake") {
+        return $("product-name").value;
+    }
+    let flavor = $("transaction-cake-flavor").value;
+    if (flavor === "Other Flavor") {
+        flavor = $("transaction-other-flavor").value.trim();
+    }
+    return "Custom Cake - " + $("transaction-cake-size").value + " - " + flavor +
+        " - " + $("transaction-design-level").value;
+}
+
+function displayTransactionItems() {
+    let html = "";
+    if (orderItems.length === 0) {
+        html = "No products selected.";
+    } else {
+        for (let i = 0; i < orderItems.length; i++) {
+            html += escapeHtml(orderItems[i][I_NAME]) + " x" + orderItems[i][I_QUANTITY] +
+                " = " + formatCurrency(orderItems[i][I_PRICE] * orderItems[i][I_QUANTITY]) +
+                " <button type=\"button\" class=\"btn btn-secondary\" onclick=\"removeTransactionItem(" + i + ")\">Remove</button><br>";
+        }
+    }
+    $("selected-transaction-items").innerHTML = html;
+}
+
+function calculateTransactionItemsTotal() {
+    let total = 0;
+    for (let i = 0; i < orderItems.length; i++) {
+        total = total + orderItems[i][I_PRICE] * orderItems[i][I_QUANTITY];
+    }
+    return total;
+}
+
+function addProductToTransaction() {
+    const productValue = $("product-name").value;
+    const quantityText = $("quantity").value.trim();
+    const price = Number($("price").value);
+
+    if (productValue === "" || isWholeNumber(quantityText) === false || price <= 0) {
+        showMessage("Select a valid product, quantity, and price before adding it.", "error");
+        return;
+    }
+
+    if (productValue === "custom-cake") {
+        if ($("transaction-cake-flavor").value === "Other Flavor" &&
+            ($("transaction-other-flavor").value.trim() === "" || isMoney($("transaction-other-flavor-price").value) === false)) {
+            showMessage("Enter the requested flavor and a valid flavor surcharge.", "error");
+            return;
+        }
+        if ($("transaction-design-level").value === "Fully Customized" &&
+            isMoney($("transaction-custom-design-price").value) === false) {
+            showMessage("Enter a valid custom design surcharge.", "error");
+            return;
+        }
+    }
+
+    const name = transactionCakeProductLabel();
+    const quantity = Number(quantityText);
+    let found = false;
+    for (let i = 0; i < orderItems.length; i++) {
+        if (orderItems[i][I_NAME] === name && orderItems[i][I_PRICE] === price) {
+            orderItems[i][I_QUANTITY] = orderItems[i][I_QUANTITY] + quantity;
+            found = true;
+            break;
+        }
+    }
+    if (found === false) {
+        orderItems[orderItems.length] = [name, price, quantity];
+    }
+
+    displayTransactionItems();
+    $("product-name").value = "";
+    $("quantity").value = "";
+    $("price").value = "";
+    showTransactionCakeFields();
+}
+
+function removeTransactionItem(index) {
+    if (index < 0 || index >= orderItems.length) {
+        return;
+    }
+    if (orderItems[index][I_QUANTITY] > 1) {
+        orderItems[index][I_QUANTITY] = orderItems[index][I_QUANTITY] - 1;
+    } else {
+        for (let i = index; i < orderItems.length - 1; i++) {
+            orderItems[i] = orderItems[i + 1];
+        }
+        orderItems.length = orderItems.length - 1;
+    }
+    displayTransactionItems();
+}
+
+function receiveTransactionItems(type, customer, payment, method, pickupDate, dateNeeded, timeNeeded) {
+    const total = calculateTransactionItemsTotal();
+    if (payment < total) {
+        return [false, "Payment is insufficient. Total is " + formatCurrency(total) + "."];
+    }
+
+    let firstOrderId = "";
+    for (let i = 0; i < orderItems.length; i++) {
+        let linePayment = orderItems[i][I_PRICE] * orderItems[i][I_QUANTITY];
+        if (i === orderItems.length - 1) {
+            linePayment = payment - (total - linePayment);
+        }
+        const result = receiveTransaction(type, customer, orderItems[i][I_NAME], orderItems[i][I_QUANTITY],
+            orderItems[i][I_PRICE], linePayment, method, pickupDate, dateNeeded, timeNeeded);
+        if (result[0] === false) {
+            return result;
+        }
+        if (firstOrderId === "") {
+            firstOrderId = result[1];
+        }
+    }
+    return [true, firstOrderId];
+}
+
+function recordTransaction() {
+    const type = $("transaction-type").value;
+    const customer = $("customer-name").value.trim();
+    const paymentText = $("payment").value.trim();
+    const method = $("payment-method").value;
+    const pickupDate = $("reservation-date").value;
+    const dateNeeded = $("date-needed").value;
+    const timeNeeded = $("time-needed").value;
+
+    if (customer === "" || orderItems.length === 0) {
+        showMessage("Please complete all required fields.", "error");
+        return;
+    }
+
+    if (isMoney(paymentText) === false) {
+        showMessage("Payment is required and must be a valid amount.", "error");
+        return;
+    }
+
+    if (method !== "cash" && method !== "e-wallet") {
+        showMessage("Please select a payment method (Cash or E-Wallet).", "error");
+        return;
+    }
+
+    if (pickupDate !== "" && pickupDate < todayString()) {
+        showMessage("Reservation / pickup date cannot be in the past.", "error");
+        return;
+    }
+
+    if (pickupDate !== "" && (dateNeeded === "" || timeNeeded === "")) {
+        showMessage("Reservation date requires a date needed and time needed.", "error");
+        return;
+    }
+
+    if (dateNeeded !== "" && pickupDate === "") {
+        showMessage("Enter a reservation date before adding a date needed.", "error");
+        return;
+    }
+
+    if (dateNeeded !== "" && dateNeeded < pickupDate) {
+        showMessage("Date needed cannot be earlier than the reservation date.", "error");
+        return;
+    }
+
+    /* Hand the finished data to the real module */
+    if (Number(paymentText) < calculateTransactionItemsTotal()) {
+        showMessage("Payment is insufficient. Total is " + formatCurrency(calculateTransactionItemsTotal()) + ".", "error");
+        return;
+    }
+
+    const result = receiveTransactionItems(type, customer, Number(paymentText), method, pickupDate, dateNeeded, timeNeeded);
+
+    if (result[0] === false) {
+        showMessage(result[1], "error");
+        return;
+    }
+
+    let kind = "regular";
+    if (pickupDate !== "") {
+        kind = "reservation";
+    }
+
+    clearForm();
+
+    /* Jump to the table where the new record landed */
+    showChannel(type);
+    showKind(type, kind);
+    showStatus(type, kind, "pending");
+
+    showMessage("Order " + result[1] + " with multiple products recorded under " + (type === "onsite" ? "Onsite" : "Online") +
+        " > " + (kind === "reservation" ? "Reservations" : "Transactions") + " > Pending.", "success");
+}
+
+function clearForm() {
+    $("customer-name").value = "";
+    $("product-name").value = "";
+    $("quantity").value = "";
+    $("price").value = "";
+    $("payment").value = "";
+    $("reservation-date").value = "";
+    $("date-needed").value = "";
+    $("time-needed").value = "";
+    $("transaction-cake-fields").hidden = true;
+    $("transaction-other-flavor").hidden = true;
+    $("transaction-other-flavor-price").hidden = true;
+    $("transaction-custom-design-price").hidden = true;
+    orderItems.length = 0;
+    displayTransactionItems();
+    updatePaymentMethod();
+    updateOrderId();
+}
+
+function initDemoForm() {
+    $("reservation-date").min = todayString();
+    updateOrderId();
+    updatePaymentMethod();
+}
+
+/* Live restriction and auto-fill of the form fields */
+$("quantity").addEventListener("keydown", function (e) {
+    if (isBlockedKey(e.key, false)) e.preventDefault();
+});
+$("payment").addEventListener("keydown", function (e) {
+    if (isBlockedKey(e.key, true)) e.preventDefault();
+});
+$("quantity").addEventListener("input", function () {
+    const clean = keepDigits(this.value);
+    if (clean !== this.value) this.value = clean;
+});
+$("payment").addEventListener("input", function () {
+    const clean = keepMoney(this.value);
+    if (clean !== this.value) this.value = clean;
+});
+$("product-name").addEventListener("change", function () {
+    showTransactionCakeFields();
+});
+$("transaction-cake-size").addEventListener("change", updateTransactionCakePrice);
+$("transaction-cake-flavor").addEventListener("change", updateTransactionCakeFields);
+$("transaction-design-level").addEventListener("change", updateTransactionCakeFields);
+$("transaction-other-flavor-price").addEventListener("input", updateTransactionCakePrice);
+$("transaction-custom-design-price").addEventListener("input", updateTransactionCakePrice);
+$("transaction-type").addEventListener("change", updateOrderId);
+$("transaction-type").addEventListener("change", updatePaymentMethod);
+$("reservation-date").addEventListener("change", updateOrderId);
+
+/* #####################################################
+   DEMO FORM - END
+##################################################### */
+
+/* =====================================================
+   SAMPLE DATA (simulates database content)
+===================================================== */
+
+function addSample(type, customer, product, qty, price, payment, date, time, status, method) {
+    const number = pad(transactions.length + 1, 3);
+    const total = qty * price;
+    const orderId = generateOrderId(type, date);
+    transactions[transactions.length] = createRecord(
+        "TRX-" + number, orderId, date !== "" ? "RES-" + number : "", type, customer, product,
+        qty, price, total, payment, payment - total, date, time, status, method
+    );
+}
+
+addSample("onsite", "Juan Dela Cruz", "Brownies", 2, 250, 500, "", "2026-09-28 08:30", "completed", "cash");
+addSample("onsite", "Maria Santos", "Crinkles", 5, 20, 200, "", "2026-09-28 09:15", "pending", "cash");
+addSample("onsite", "Ana Garcia", "Crema de Fruta", 1, 900, 900, "2026-09-30", "2026-09-28 09:40", "pending", "cash");
+addSample("online", "Mark Lopez", "Taisan Ube Cake", 2, 190, 380, "", "2026-09-28 10:00", "completed", "e-wallet");
+addSample("online", "Pedro Reyes", "Taisan Mocha Cake", 1, 190, 190, "2026-10-02", "2026-09-28 10:20", "pending", "e-wallet");
+addSample("online", "Sofia Cruz", "Carrot Bars", 1, 250, 250, "", "2026-09-27 15:30", "completed", "e-wallet");
+
+buildChannels();
+displayAllTransactions();
+updateSummary();
+
+/* Runs only while the demo form code exists */
+if (typeof initDemoForm === "function") {
+    initDemoForm();
+}
+
+</script>
+</body>
+</html>
